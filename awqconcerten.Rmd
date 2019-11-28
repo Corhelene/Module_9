@@ -1,0 +1,33 @@
+---
+title: "Amsterdam Wind Quintet concerts"
+author: "Ellen Bayens"
+date: "28-11-2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+```
+
+
+```{r }
+library(leaflet)
+library(dplyr)
+mydata <- read.csv("AWQconcerten.csv", header = TRUE, sep = ";")
+mydata <- mydata %>%
+  mutate(lat=as.numeric(gsub("^([0-9]+)([0-9]{6})$", "\\1.\\2", lat)), 
+         lng=as.numeric(gsub("^([0-9]+)([0-9]{6})$", "\\1.\\2", lng)), 
+         awqsites = paste0("<a href=", mydata$site, ">", mydata$Datum_locatie, "</a"), 
+         col = ifelse(mydata$Jaar==2020, "red", ifelse(mydata$Jaar==2019, "orange", 
+                                                       ifelse(mydata$Jaar==2018, "yellow", "green"))))
+mydata[,c("lat", "lng")] %>%
+  leaflet() %>%
+  addTiles() %>%
+  setView(5.2793703, 52.2129919,  zoom = 7.2) %>%
+  addCircleMarkers(weight = 3, opacity = 0.8, fillOpacity = 0.4 ,color = mydata$col, 
+                   popup = mydata$awqsites) %>%
+  addLegend(labels = c(2017:2020), colors = c("green", "yellow", "orange", "red"))
+```
+
+
+
